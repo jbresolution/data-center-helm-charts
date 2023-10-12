@@ -159,7 +159,7 @@ spec:
               value: {{ .Values.confluence.ports.http | quote }}
             {{ if .Values.ingress.host }}
             - name: ATL_PROXY_NAME
-              value: {{ .Values.ingress.host | quote }}
+              value: {{ tpl .Values.ingress.host . | quote }}
             - name: ATL_PROXY_PORT
               value: {{ include "confluence.ingressPort" . | quote }}
             {{ end }}
@@ -178,13 +178,8 @@ spec:
                   name: {{ include "common.names.fullname" . }}-jvm-config
             {{- include "confluence.clusteringEnvVars" . | nindent 12 }}
             {{- include "confluence.databaseEnvVars" . | nindent 12 }}
-            {{ with .Values.confluence.license.secretName }}
             - name: ATL_LICENSE_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: {{ . }}
-                  key: {{ $.Values.confluence.license.secretKey }}
-            {{ end }}
+              value: {{ .Values.confluence.licenseKey | quote }}
             - name: JVM_MINIMUM_MEMORY
               valueFrom:
                 configMapKeyRef:

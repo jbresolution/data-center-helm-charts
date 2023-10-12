@@ -294,9 +294,7 @@ Define pod annotations here to allow template overrides when used as a sub chart
 Define additional init containers here to allow template overrides when used as a sub chart
 */}}
 {{- define "confluence.additionalInitContainers" -}}
-{{- with .Values.additionalInitContainers }}
-{{- toYaml . }}
-{{- end }}
+{{ tpl (.Values.additionalInitContainers | toYaml) . }}
 {{- end }}
 
 {{/*
@@ -312,9 +310,7 @@ Define additional hosts here to allow template overrides when used as a sub char
 Define additional containers here to allow template overrides when used as a sub chart
 */}}
 {{- define "confluence.additionalContainers" -}}
-{{- with .Values.additionalContainers }}
-{{- toYaml . }}
-{{- end }}
+{{ tpl (.Values.additionalContainers | toYaml) . }}
 {{- end }}
 
 {{/*
@@ -357,9 +353,7 @@ Define additional Synchrony volume mounts here to allow template overrides when 
 Define additional environment variables here to allow template overrides when used as a sub chart
 */}}
 {{- define "confluence.additionalEnvironmentVariables" -}}
-{{- with .Values.confluence.additionalEnvironmentVariables }}
-{{- toYaml . }}
-{{- end }}
+{{ tpl (.Values.confluence.additionalEnvironmentVariables | toYaml) . }}
 {{- end }}
 
 {{/*
@@ -382,7 +376,7 @@ For each additional plugin declared, generate a volume mount that injects that l
 {{ include "confluence.volumes.localHome" . }}
 {{- end }}
 {{ include "confluence.volumes.sharedHome" . }}
-{{- with .Values.volumes.additional }}
+{{- with .Values.volumes.additional}}
 {{- toYaml . | nindent 0 }}
 {{- end }}
 {{- if .Values.confluence.tomcatConfig.generateByHelm }}
@@ -523,22 +517,19 @@ volumeClaimTemplates:
 - name: ATL_DB_TYPE
   value: {{ . | quote }}
 {{ end }}
-{{ with .Values.database.url }}
 - name: ATL_JDBC_URL
-  value: {{ . | quote }}
-{{ end }}
-{{ with .Values.database.credentials.secretName }}
+  value: {{  tpl .Values.database.url . | quote }}
 - name: ATL_JDBC_USER
   valueFrom:
     secretKeyRef:
-      name: {{ . }}
+      name: {{  tpl .Values.database.credentials.secretName . | quote }}
       key: {{ $.Values.database.credentials.usernameSecretKey }}
 - name: ATL_JDBC_PASSWORD
   valueFrom:
     secretKeyRef:
-      name: {{ . }}
+      name: {{  tpl .Values.database.credentials.secretName . | quote }}
       key: {{ $.Values.database.credentials.passwordSecretKey }}
-{{ end }}
+{{/* end */}}
 {{ end }}
 
 {{- define "synchrony.databaseEnvVars" -}}

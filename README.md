@@ -1,3 +1,17 @@
+# About this fork
+
+This fork contains some changes for use in our Reslab-Cluster
+See the commit messages for details.
+
+When doing changes, the updated chart needs to be pushed to the Reslab chart repository https://charts-private.reslab.de,
+configured as repository reslab in this example:
+
+    cd src/main/charts/<product>
+    helm dependency update
+    helm cm-push . reslab
+
+
+
 # Atlassian Data Center Helm Charts
 
 [![Artifact Hub](https://img.shields.io/endpoint?url=https://artifacthub.io/badge/repository/atlassian-data-center)](https://artifacthub.io/packages/search?repo=atlassian-data-center)
