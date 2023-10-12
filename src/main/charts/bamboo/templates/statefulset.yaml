@@ -88,7 +88,7 @@ spec:
               value: {{ .Values.bamboo.ports.http | quote }}
             {{ if .Values.ingress.host }}
             - name: ATL_PROXY_NAME
-              value: {{ .Values.ingress.host | quote }}
+              value: {{ tpl .Values.ingress.host . | quote }}
             - name: ATL_PROXY_PORT
               value: {{ include "bamboo.ingressPort" . | quote }}
             {{ end }}
@@ -131,29 +131,29 @@ spec:
             - name: ATL_LICENSE
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.bamboo.license.secretName }}
+                  name: {{ tpl .Values.bamboo.license.secretName . }}
                   key: {{ .Values.bamboo.license.secretKey }}
             {{ end }}
             {{ if .Values.bamboo.sysadminCredentials.secretName }}
             - name: ATL_ADMIN_USERNAME
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.bamboo.sysadminCredentials.secretName }}
+                  name: {{ tpl .Values.bamboo.sysadminCredentials.secretName . }}
                   key: {{ .Values.bamboo.sysadminCredentials.usernameSecretKey }}
             - name: ATL_ADMIN_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.bamboo.sysadminCredentials.secretName }}
+                  name: {{ tpl .Values.bamboo.sysadminCredentials.secretName . }}
                   key: {{ .Values.bamboo.sysadminCredentials.passwordSecretKey }}
             - name: ATL_ADMIN_FULLNAME
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.bamboo.sysadminCredentials.secretName }}
+                  name: {{ tpl .Values.bamboo.sysadminCredentials.secretName . }}
                   key: {{ .Values.bamboo.sysadminCredentials.displayNameSecretKey }}
             - name: ATL_ADMIN_EMAIL
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.bamboo.sysadminCredentials.secretName }}
+                  name: {{ tpl .Values.bamboo.sysadminCredentials.secretName . }}
                   key: {{ .Values.bamboo.sysadminCredentials.emailAddressSecretKey }}
             {{ end }}
             {{ if .Values.bamboo.import.type }}

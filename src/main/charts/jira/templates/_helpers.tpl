@@ -76,11 +76,8 @@ The command that should be run to start the fluentd service
 {{- end }}
 
 {{- define "jira.image" -}}
-{{- if .Values.image.registry -}}
-{{ .Values.image.registry}}/{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}
-{{- else -}}
-{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}
-{{- end }}
+{{ if eq .Values.global.variant "jsw" }}atlassian/jira-software:{{ .Values.image.tag | default "latest" }}{{- else }}atlassian/jira-servicemanagement:{{ .Values.image.tag | default "latest" }}{{- end}}
+
 {{- end }}
 
 {{/*
@@ -130,18 +127,14 @@ Define pod annotations here to allow template overrides when used as a sub chart
 Define additional init containers here to allow template overrides when used as a sub chart
 */}}
 {{- define "jira.additionalInitContainers" -}}
-{{- with .Values.additionalInitContainers }}
-{{- toYaml . }}
-{{- end }}
+{{- tpl ( .Values.additionalInitContainers | toYaml ) . }}
 {{- end }}
 
 {{/*
 Define additional containers here to allow template overrides when used as a sub chart
 */}}
 {{- define "jira.additionalContainers" -}}
-{{- with .Values.additionalContainers }}
-{{- toYaml . }}
-{{- end }}
+{{- tpl ( .Values.additionalContainers | toYaml ) . }}
 {{- end }}
 
 {{/*
@@ -166,9 +159,7 @@ Define additional volume mounts here to allow template overrides when used as a 
 Define additional environment variables here to allow template overrides when used as a sub chart
 */}}
 {{- define "jira.additionalEnvironmentVariables" -}}
-{{- with .Values.jira.additionalEnvironmentVariables }}
-{{- toYaml . }}
-{{- end }}
+{{ tpl (.Values.jira.additionalEnvironmentVariables | toYaml) . }}
 {{- end }}
 
 {{/*
@@ -177,7 +168,7 @@ For each additional library declared, generate a volume mount that injects that 
 {{- define "jira.additionalLibraries" -}}
 {{- range .Values.jira.additionalLibraries }}
 - name: {{ .volumeName }}
-  mountPath: "/opt/atlassian/jira/lib/{{ .fileName }}"
+  mountPath: "/opt/atlassian/jira/atlassian-jira/WEB-INF/lib/{{ .fileName }}"
   {{- if .subDirectory }}
   subPath: {{ printf "%s/%s" .subDirectory .fileName | quote }}
   {{- else }}
@@ -206,9 +197,11 @@ For each additional plugin declared, generate a volume mount that injects that l
 {{ include "jira.volumes.localHome" . }}
 {{- end }}
 {{ include "jira.volumes.sharedHome" . }}
-{{- with .Values.volumes.additional }}
-{{- toYaml . | nindent 0 }}
-{{- end }}
+
+
+{{ tpl (.Values.volumes.additional | toYaml) . }}
+
+
 {{- if .Values.jira.tomcatConfig.generateByHelm }}
 - name: server-xml
   configMap:
@@ -329,22 +322,20 @@ volumeClaimTemplates:
 - name: ATL_DB_DRIVER
   value: {{ . | quote }}
 {{ end }}
-{{ with .Values.database.url }}
+
 - name: ATL_JDBC_URL
-  value: {{ . | quote }}
-{{ end }}
-{{ with .Values.database.credentials.secretName }}
+  value: {{ tpl .Values.database.url . | quote }}
+
 - name: ATL_JDBC_USER
   valueFrom:
     secretKeyRef:
-      name: {{ . }}
+      name: {{ tpl .Values.database.credentials.secretName . }}
       key: {{ $.Values.database.credentials.usernameSecretKey }}
 - name: ATL_JDBC_PASSWORD
   valueFrom:
     secretKeyRef:
-      name: {{ . }}
+      name: {{ tpl .Values.database.credentials.secretName . }}
       key: {{ $.Values.database.credentials.passwordSecretKey }}
-{{ end }}
 {{ end }}
 
 {{- define "jira.clusteringEnvVars" -}}

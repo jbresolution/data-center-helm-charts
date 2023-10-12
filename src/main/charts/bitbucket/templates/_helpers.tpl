@@ -67,8 +67,9 @@ Mesh Pod labels
 {{- define "bitbucket.baseUrl" -}}
 {{ ternary "https" "http" .Values.ingress.https -}}
 ://
-{{- .Values.ingress.host -}}
+{{- tpl .Values.ingress.host . -}}
 {{ with .Values.ingress.port }}:{{ . }}{{ end }}
+{{- with .Values.bitbucket.service.contextPath }}{{ . }}{{- end }}
 {{- end }}
 
 {{/*
@@ -147,9 +148,7 @@ Define pod annotations here to allow template overrides when used as a sub chart
 Define additional init containers here to allow template overrides when used as a sub chart
 */}}
 {{- define "bitbucket.additionalInitContainers" -}}
-{{- with .Values.additionalInitContainers }}
-{{- toYaml . }}
-{{- end }}
+{{- tpl ( .Values.additionalInitContainers | toYaml ) . }}
 {{- end }}
 
 {{/*
@@ -165,9 +164,7 @@ Define additional init containers here to allow template overrides when used as 
 Define additional containers here to allow template overrides when used as a sub chart
 */}}
 {{- define "bitbucket.additionalContainers" -}}
-{{- with .Values.additionalContainers }}
-{{- toYaml . }}
-{{- end }}
+{{- tpl ( .Values.additionalContainers | toYaml ) . }}
 {{- end }}
 
 {{/*
@@ -192,9 +189,7 @@ Define additional volume mounts here to allow template overrides when used as a 
 Define additional environment variables here to allow template overrides when used as a sub chart
 */}}
 {{- define "bitbucket.additionalEnvironmentVariables" -}}
-{{- with .Values.bitbucket.additionalEnvironmentVariables }}
-{{- toYaml . }}
-{{- end }}
+{{ tpl (.Values.bitbucket.additionalEnvironmentVariables | toYaml) . }}
 {{- end }}
 
 {{/*
@@ -343,48 +338,44 @@ volumeClaimTemplates:
 - name: JDBC_DRIVER
   value: {{ . | quote }}
 {{ end }}
-{{ with .Values.database.url }}
+
 - name: JDBC_URL
-  value: {{ . | quote }}
-{{ end }}
-{{ with .Values.database.credentials.secretName }}
+  value: {{  tpl .Values.database.url . | quote }}
+
 - name: JDBC_USER
   valueFrom:
     secretKeyRef:
-      name: {{ . }}
+      name: {{ tpl .Values.database.credentials.secretName .  }}
       key: {{ $.Values.database.credentials.usernameSecretKey }}
 - name: JDBC_PASSWORD
   valueFrom:
     secretKeyRef:
-      name: {{ . }}
+      name: {{ tpl .Values.database.credentials.secretName .  }}
       key: {{ $.Values.database.credentials.passwordSecretKey }}
-{{ end }}
 {{ end }}
 
 {{- define "bitbucket.sysadminEnvVars" -}}
-{{ with .Values.bitbucket.sysadminCredentials }}
-{{ if .secretName }}
+{{ if .Values.bitbucket.sysadminCredentials.secretName }}
 - name: SETUP_SYSADMIN_USERNAME
   valueFrom:
     secretKeyRef:
-      name: {{ .secretName }}
-      key: {{ .usernameSecretKey }}
+      name: {{ tpl .Values.bitbucket.sysadminCredentials.secretName . }}
+      key: {{ .Values.bitbucket.sysadminCredentials.usernameSecretKey }}
 - name: SETUP_SYSADMIN_PASSWORD
   valueFrom:
     secretKeyRef:
-      name: {{ .secretName }}
-      key: {{ .passwordSecretKey }}
+      name: {{ tpl .Values.bitbucket.sysadminCredentials.secretName . }}
+      key: {{ .Values.bitbucket.sysadminCredentials.passwordSecretKey }}
 - name: SETUP_SYSADMIN_DISPLAYNAME
   valueFrom:
     secretKeyRef:
-      name: {{ .secretName }}
-      key: {{ .displayNameSecretKey }}
+      name: {{ tpl .Values.bitbucket.sysadminCredentials.secretName . }}
+      key: {{ .Values.bitbucket.sysadminCredentials.displayNameSecretKey }}
 - name: SETUP_SYSADMIN_EMAILADDRESS
   valueFrom:
     secretKeyRef:
-      name: {{ .secretName }}
-      key: {{ .emailAddressSecretKey }}
-{{ end }}
+      name: {{ tpl .Values.bitbucket.sysadminCredentials.secretName . }}
+      key: {{ .Values.bitbucket.sysadminCredentials.emailAddressSecretKey }}
 {{ end }}
 {{ end }}
 
@@ -426,10 +417,8 @@ volumeClaimTemplates:
 - name: SEARCH_ENABLED
   value: "false"
 {{- end }}
-{{ with .Values.bitbucket.elasticSearch.baseUrl }}
 - name: PLUGIN_SEARCH_ELASTICSEARCH_BASEURL
-  value: {{ . | quote }}
-{{ end }}
+  value: {{ tpl .Values.bitbucket.elasticSearch.baseUrl . | quote }}
 {{ if .Values.bitbucket.elasticSearch.credentials.secretName }}
 - name: PLUGIN_SEARCH_ELASTICSEARCH_USERNAME
   valueFrom:

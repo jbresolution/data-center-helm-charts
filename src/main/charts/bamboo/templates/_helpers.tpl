@@ -7,9 +7,9 @@ Deduce the base URL for bamboo.
         {{ ternary "https" "http" .Values.ingress.https -}}
         ://
         {{- if .Values.ingress.path -}}
-            {{ .Values.ingress.host}}{{.Values.ingress.path }}
+            {{ tpl .Values.ingress.host . }}{{.Values.ingress.path }}
         {{- else -}}
-            {{ .Values.ingress.host}}
+            {{ tpl .Values.ingress.host . }}
         {{- end }}
     {{- else -}}
         {{- print  "http://localhost:8085/" }}
@@ -130,18 +130,14 @@ Define pod annotations here to allow template overrides when used as a sub chart
 Define additional init containers here to allow template overrides when used as a sub chart
 */}}
 {{- define "bamboo.additionalInitContainers" -}}
-{{- with .Values.additionalInitContainers }}
-{{- toYaml . }}
-{{- end }}
+{{- tpl ( .Values.additionalInitContainers | toYaml ) . }}
 {{- end }}
 
 {{/*
 Define additional containers here to allow template overrides when used as a sub chart
 */}}
 {{- define "bamboo.additionalContainers" -}}
-{{- with .Values.additionalContainers }}
-{{- toYaml . }}
-{{- end }}
+{{- tpl ( .Values.additionalContainers | toYaml ) . }}
 {{- end }}
 
 {{/*
@@ -166,9 +162,7 @@ Define additional volume mounts here to allow template overrides when used as a 
 Define additional environment variables here to allow template overrides when used as a sub chart
 */}}
 {{- define "bamboo.additionalEnvironmentVariables" -}}
-{{- with .Values.bamboo.additionalEnvironmentVariables }}
-{{- toYaml . }}
-{{- end }}
+{{ tpl (.Values.bamboo.additionalEnvironmentVariables | toYaml) . }}
 {{- end }}
 
 {{/*
@@ -177,7 +171,7 @@ For each additional library declared, generate a volume mount that injects that 
 {{- define "bamboo.additionalLibraries" -}}
 {{- range .Values.bamboo.additionalLibraries }}
 - name: {{ .volumeName }}
-  mountPath: "/opt/atlassian/bamboo/lib/{{ .fileName }}"
+  mountPath: "/opt/atlassian/bamboo/atlassian-bamboo/WEB-INF/lib/{{ .fileName }}"
   {{- if .subDirectory }}
   subPath: {{ printf "%s/%s" .subDirectory .fileName | quote }}
   {{- else }}
@@ -206,9 +200,8 @@ For each additional plugin declared, generate a volume mount that injects that l
 {{ include "bamboo.volumes.localHome" . }}
 {{- end }}
 {{ include "bamboo.volumes.sharedHome" . }}
-{{- with .Values.volumes.additional }}
-{{- toYaml . | nindent 0 }}
-{{- end }}
+{{ tpl (.Values.volumes.additional | toYaml) . }}
+
 {{- if .Values.bamboo.additionalCertificates.secretName }}
 - name: keystore
   emptyDir: {}
@@ -284,22 +277,19 @@ volumeClaimTemplates:
 - name: ATL_DB_TYPE
   value: {{ . | quote }}
 {{ end }}
-{{ with .Values.database.url }}
 - name: ATL_JDBC_URL
-  value: {{ . | quote }}
-{{ end }}
-{{ with .Values.database.credentials.secretName }}
+  value: {{ tpl .Values.database.url . | quote }}
+
 - name: ATL_JDBC_USER
   valueFrom:
     secretKeyRef:
-      name: {{ . }}
+      name: {{ tpl .Values.database.credentials.secretName . }}
       key: {{ $.Values.database.credentials.usernameSecretKey }}
 - name: ATL_JDBC_PASSWORD
   valueFrom:
     secretKeyRef:
-      name: {{ . }}
+      name: {{ tpl .Values.database.credentials.secretName . }}
       key: {{ $.Values.database.credentials.passwordSecretKey }}
-{{ end }}
 {{ end }}
 
 {{- define "flooredCPU" -}}

@@ -21,14 +21,14 @@ spec:
 {{ if and (.Values.ingress.https) (.Values.ingress.host) }}
   tls:
     - hosts:
-        - {{ .Values.ingress.host }}
+        - {{ tpl .Values.ingress.host  .}}
       {{ if .Values.ingress.tlsSecretName }}
       secretName: {{ .Values.ingress.tlsSecretName }}
       {{ end }}
 {{ end }}
   ingressClassName: {{ default "nginx" .Values.ingress.className }}
   rules:
-    - host: {{ .Values.ingress.host }}
+    - host: {{ tpl .Values.ingress.host . }}
       http:
         paths:
           - path: {{ include "bitbucket.ingressPath" . }}
@@ -38,4 +38,17 @@ spec:
                 name: {{ include "common.names.fullname" $ }}
                 port:
                   number: {{ $.Values.bitbucket.service.port }}
+    {{ if .Values.ingress.althost }}
+    - host: {{ tpl .Values.ingress.althost . }}.reslab.de
+      http:
+        paths:
+          - path: {{ include "bitbucket.ingressPath" . }}
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ include "common.names.fullname" $ }}
+                port:
+                  number: {{ $.Values.bitbucket.service.port }}
+    {{ end }}
+
 {{ end }}
