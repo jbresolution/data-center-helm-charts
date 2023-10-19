@@ -180,9 +180,9 @@ spec:
             {{- include "bitbucket.elasticSearchEnvVars" . | nindent 12 }}
             - name: PLUGIN_SSH_PORT
               value: {{ .Values.bitbucket.ports.ssh | quote }}
-            {{ if .Values.ingress.host }}
+            {{ if tpl .Values.ingress.host . }}
             - name: SERVER_PROXY_NAME
-              value: {{ .Values.ingress.host | quote }}
+              value: {{ tpl .Values.ingress.host . | quote }}
             - name: SERVER_PROXY_PORT
               value: {{ include "bitbucket.ingressPort" . | quote }}
             - name: SETUP_BASEURL
@@ -212,13 +212,11 @@ spec:
             - name: BITBUCKET_SHARED_HOME
               value: {{ .Values.volumes.sharedHome.mountPath | quote }}
             {{- end }}
-            {{ with .Values.bitbucket.license.secretName }}
             - name: SETUP_LICENSE
               valueFrom:
                 secretKeyRef:
-                  name: {{ . }}
+                  name: {{ tpl .Values.bitbucket.license.secretName . }}
                   key: {{ $.Values.bitbucket.license.secretKey }}
-            {{ end }}
             {{- with $mirror.upstreamUrl }}
             - name: PLUGIN_MIRRORING_UPSTREAM_URL
               value: {{ . | quote }}
