@@ -91,7 +91,7 @@ spec:
               value: {{ .Values.jira.ports.http | quote }}
             {{ if .Values.ingress.host }}
             - name: ATL_PROXY_NAME
-              value: {{ .Values.ingress.host | quote }}
+              value: {{ tpl .Values.ingress.host . | quote }}
             - name: ATL_PROXY_PORT
               value: {{ include "jira.ingressPort" . | quote }}
             {{ end }}

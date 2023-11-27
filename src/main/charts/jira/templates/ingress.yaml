@@ -21,14 +21,14 @@ spec:
 {{ if and (.Values.ingress.https) (.Values.ingress.host) }}
   tls:
     - hosts:
-        - {{ .Values.ingress.host }}
+        - {{ tpl .Values.ingress.host . }}
       {{ if .Values.ingress.tlsSecretName }}
       secretName: {{ .Values.ingress.tlsSecretName }}
       {{ end }}
 {{ end }}
   ingressClassName: {{ default "nginx" .Values.ingress.className }}
   rules:
-    - host: {{ .Values.ingress.host }}
+    - host: {{ tpl .Values.ingress.host . }}
       http:
         paths:
           - path: {{ include "jira.ingressPath" . }}
@@ -38,4 +38,16 @@ spec:
                 name: {{ include "common.names.fullname" $ }}
                 port:
                   number: {{ $.Values.jira.service.port }}
+    {{ if .Values.ingress.althost }}
+     - host: {{ .Values.ingress.althost  }}.reslab.de
+       http:
+        paths:
+          - path: {{ include "jira.ingressPath" . }}
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ include "common.names.fullname" . }}
+                port:
+                  number: {{ $.Values.jira.service.port }}
+        {{ end }}
 {{ end }}
