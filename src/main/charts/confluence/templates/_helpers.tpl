@@ -376,9 +376,9 @@ For each additional plugin declared, generate a volume mount that injects that l
 {{ include "confluence.volumes.localHome" . }}
 {{- end }}
 {{ include "confluence.volumes.sharedHome" . }}
-{{- with .Values.volumes.additional}}
-{{- toYaml . | nindent 0 }}
-{{- end }}
+
+{{ tpl (.Values.volumes.additional | toYaml) . }}
+
 {{- if .Values.confluence.tomcatConfig.generateByHelm }}
 - name: server-xml
   configMap:
