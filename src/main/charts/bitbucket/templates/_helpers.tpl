@@ -189,9 +189,7 @@ Define additional volume mounts here to allow template overrides when used as a 
 Define additional environment variables here to allow template overrides when used as a sub chart
 */}}
 {{- define "bitbucket.additionalEnvironmentVariables" -}}
-{{- with .Values.bitbucket.additionalEnvironmentVariables }}
-{{- toYaml . }}
-{{- end }}
+{{ tpl (.Values.bitbucket.additionalEnvironmentVariables | toYaml) . }}
 {{- end }}
 
 {{/*

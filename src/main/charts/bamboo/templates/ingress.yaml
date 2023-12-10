@@ -48,6 +48,6 @@ spec:
                service:
                   name: {{ include "common.names.fullname" . }}
                   port:
-                    number: {{ $.Values.confluence.service.port }}
+                    number: {{ $.Values.bamboo.service.port }}
        {{ end }}
 {{ end }}

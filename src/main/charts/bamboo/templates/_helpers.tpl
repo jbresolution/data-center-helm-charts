@@ -162,9 +162,7 @@ Define additional volume mounts here to allow template overrides when used as a 
 Define additional environment variables here to allow template overrides when used as a sub chart
 */}}
 {{- define "bamboo.additionalEnvironmentVariables" -}}
-{{- with .Values.bamboo.additionalEnvironmentVariables }}
-{{- toYaml . }}
-{{- end }}
+{{ tpl (.Values.bamboo.additionalEnvironmentVariables | toYaml) . }}
 {{- end }}
 
 {{/*
