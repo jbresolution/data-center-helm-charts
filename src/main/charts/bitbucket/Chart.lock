@@ -3,4 +3,4 @@ dependencies:
   repository: https://atlassian.github.io/data-center-helm-charts
   version: 1.2.4
 digest: sha256:a373258f4c668f70e249c8310ba3a105e9b86301a9a7eb659b95d8449eafc05b
-generated: "2023-09-18T10:41:59.662404+10:00"
+generated: "2023-12-19T21:53:00.117675+01:00"

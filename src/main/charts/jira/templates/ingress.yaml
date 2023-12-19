@@ -39,15 +39,15 @@ spec:
                 port:
                   number: {{ $.Values.jira.service.port }}
     {{ if .Values.ingress.althost }}
-     - host: {{ .Values.ingress.althost  }}.reslab.de
-       http:
-        paths:
-          - path: {{ include "jira.ingressPath" . }}
-            pathType: Prefix
-            backend:
-              service:
-                name: {{ include "common.names.fullname" . }}
-                port:
-                  number: {{ $.Values.jira.service.port }}
-        {{ end }}
+    - host: {{ .Values.ingress.althost  }}.reslab.de
+      http:
+       paths:
+         - path: {{ include "jira.ingressPath" . }}
+           pathType: Prefix
+           backend:
+             service:
+               name: {{ include "common.names.fullname" . }}
+               port:
+                 number: {{ $.Values.jira.service.port }}
+       {{ end }}
 {{ end }}
