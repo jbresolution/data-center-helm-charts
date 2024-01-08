@@ -39,7 +39,7 @@ spec:
                 port:
                   number: {{ $.Values.bitbucket.service.port }}
     {{ if .Values.ingress.althost }}
-    - host: {{ tpl .Values.ingress.althost . }}
+    - host: {{ tpl .Values.ingress.althost . }}.reslab.de
       http:
         paths:
           - path: {{ include "bitbucket.ingressPath" . }}
