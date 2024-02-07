@@ -76,11 +76,8 @@ The command that should be run to start the fluentd service
 {{- end }}
 
 {{- define "jira.image" -}}
-{{- if .Values.image.registry -}}
-{{ .Values.image.registry}}/{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}
-{{- else -}}
-{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}
-{{- end }}
+{{ if eq .Values.global.variant "jsw" }}atlassian/jira-software:{{ .Values.image.tag | default "latest" }}{{- else }}atlassian/jira-servicemanagement:{{ .Values.image.tag | default "latest" }}{{- end}}
+
 {{- end }}
 
 {{/*
